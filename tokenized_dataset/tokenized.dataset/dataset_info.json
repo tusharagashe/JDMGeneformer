@@ -13,11 +13,7 @@
       "dtype": "int64",
       "_type": "Value"
     },
-    "sex": {
-      "dtype": "int64",
-      "_type": "Value"
-    },
-    "self_reported_ethnicity": {
+    "donor_id": {
       "dtype": "int64",
       "_type": "Value"
     },

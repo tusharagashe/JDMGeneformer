@@ -1,46 +1,70 @@
 import os
-import pandas as pd
-import scanpy as sc
-from datasets import load_from_disk
+from transformers import TrainingArguments
 from geneformer import Classifier
 
 
+input_data_folder = os.path.abspath("tokenized_dataset/tokenized.dataset")
+prepared_data_folder = os.path.abspath("CD4_finetune_prepared")
+results_folder = os.path.abspath("CD4_finetune_results")
+model_path = os.path.abspath("./Geneformer/Geneformer-V2-104M")
 
-cell_state_dict = {
-    "state_key": "disease_group",
-    "states": ["Active", "TNJDM", "Inactive", "HC"]
-}
 
-classifier = Classifier(
-    classifier="cell",
-    cell_state_dict=cell_state_dict,
-    filter_data=None,  
-    max_ncells=None,   
-    max_epochs=15,     
-    learning_rate=1e-4, 
-    freeze_layers=6,   # freeze bottom 6 layers, fine-tune top 6
-    num_crossval_splits=3,  # 3-fold CV for robust validation
-    eval_size=0.15,   
-    n_hyperopt_trials=3,  
-    output_dir="finetunedmodel",
-    output_prefix="disease_classifier",
-    batch_size=12,     # smaller batch size for stability
-    warmup_steps=150,  # warmup for stable training (increased for larger dataset)
-    weight_decay=0.1   # regularization to prevent overfitting
+training_args = TrainingArguments(
+      num_train_epochs=1,              
+      learning_rate=5e-5,
+      per_device_train_batch_size=12,
+      lr_scheduler_type='polynomial',
+      warmup_steps=50,
+      weight_decay=0.01,
+      seed=73,
+  )
+
+model = Classifier(
+      classifier="cell",
+      cell_state_dict={"state_key": "disease_group", "states": "all"},
+      max_ncells=100,                  
+      training_args=training_args.to_dict(),
+      freeze_layers=4,                 
+      num_crossval_splits=1,           # no cross-validation
+      forward_batch_size=64,
+      nproc=8,
+      model_version="V2")
+
+os.makedirs(prepared_data_folder, exist_ok=True)
+os.makedirs(results_folder, exist_ok=True)
+
+train_ids = [5, 9, 14, 17, 4, 10, 1, 12, 0, 15, 19, 16, 12, 14, 5, 9] # all cases ( 3 HCs, 6 TNJDM, 3 Active, 4 Inactive)
+eval_ids = [6, 7, 3, 11] # 1 case each
+test_ids = [2, 8, 13, 18] # 1 case each 
+
+train_test_id_split_dict = {"attr_key": "donor_id",
+                            "train": train_ids+eval_ids,
+                            "test": test_ids}
+
+
+model.prepare_data(
+      input_data_file=input_data_folder,
+      output_directory=prepared_data_folder,
+      output_prefix="jdm",
+      split_id_dict=train_test_id_split_dict
 )
 
-classifier.prepare_data(
-    input_data_file="tokenized_train_dataset/tokenized.dataset",
-    output_directory="finetunedmodel/prepared_data",
-    output_prefix="prepared"
-)
 
-classifier.validate(
-    model_directory="../Geneformer/gf-12L-95M-i4096",  # pretrained model path
-    prepared_input_data_file="finetunedmodel/prepared_data/prepared.dataset",
-    id_class_dict_file="finetunedmodel/prepared_data/id_class_dict.pkl",
-    output_directory="finetunedmodel",
-    output_prefix="disease_classifier"
-)
+train_valid_id_split_dict = {"attr_key": "donor_id",
+                            "train": train_ids,
+                            "eval": eval_ids}
 
-print(f"Fine-tuned classifier saved to finetunedmodel/")
+print("Begin classifier training")
+
+metrics = model.validate(
+        model_directory=model_path,
+        prepared_input_data_file=f"{prepared_data_folder}/jdm_labeled_train.dataset",
+        id_class_dict_file=f"{prepared_data_folder}/jdm_id_class_dict.pkl",
+        output_directory=results_folder,
+        output_prefix="jdm_classifier",
+        split_id_dict=train_valid_id_split_dict,
+        n_hyperopt_trials=0        
+    )    
+
+print("Classifier training complete!")
+print(f"JDM Classifier metrics: {metrics}")
