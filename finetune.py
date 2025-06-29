@@ -1,4 +1,5 @@
 import os
+import torch
 from transformers import TrainingArguments
 from geneformer import Classifier
 
@@ -9,15 +10,17 @@ results_folder = os.path.abspath("CD4_finetune_results")
 model_path = os.path.abspath("./Geneformer/Geneformer-V2-104M")
 
 
-training_args = TrainingArguments(
-      num_train_epochs=1,              
-      learning_rate=5e-5,
-      per_device_train_batch_size=12,
-      lr_scheduler_type='polynomial',
-      warmup_steps=50,
-      weight_decay=0.01,
-      seed=73,
-  )
+# training_args = TrainingArguments(
+#       num_train_epochs=1,              
+#       learning_rate=5e-5,
+#       per_device_train_batch_size=12,
+#       lr_scheduler_type='polynomial',
+#       warmup_steps=50,
+#       weight_decay=0.01,
+#       seed=73,
+#   )
+
+training_args = torch.load("CD4_finetune_results/250629_geneformer_cellClassifier_jdm_classifier_with_hyperopt/ksplit1/run-1b5dd982/checkpoint-7/training_args.bin", weights_only=False)
 
 model = Classifier(
       classifier="cell",
@@ -61,9 +64,9 @@ metrics = model.validate(
         prepared_input_data_file=f"{prepared_data_folder}/jdm_labeled_train.dataset",
         id_class_dict_file=f"{prepared_data_folder}/jdm_id_class_dict.pkl",
         output_directory=results_folder,
-        output_prefix="jdm_classifier",
+        output_prefix="jdm_classifier_with_hyperopt",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=0        
+        n_hyperopt_trials=1        
     )    
 
 print("Classifier training complete!")
