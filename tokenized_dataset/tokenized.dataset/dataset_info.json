@@ -13,8 +13,20 @@
       "dtype": "int64",
       "_type": "Value"
     },
+    "sex": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "self_reported_ethnicity": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
     "donor_id": {
       "dtype": "int64",
+      "_type": "Value"
+    },
+    "observation_joinid": {
+      "dtype": "string",
       "_type": "Value"
     },
     "length": {
