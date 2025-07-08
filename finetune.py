@@ -12,9 +12,9 @@ model_path = os.path.abspath("../Geneformer/Geneformer-V2-104M")
 
 
 training_args = TrainingArguments(
-      num_train_epochs=1,              
+      num_train_epochs=3,              
       learning_rate=5e-5,
-      per_device_train_batch_size=12,
+      per_device_train_batch_size=16,
       lr_scheduler_type='polynomial',
       warmup_steps=50,
       weight_decay=0.01,
@@ -23,26 +23,41 @@ training_args = TrainingArguments(
 
 
 
-# ray_config = {
-#     "learning_rate": tune.loguniform(2e-4, 8e-4), 
-#     "weight_decay": tune.uniform(0.02, 0.06),     
-#     "warmup_steps": tune.randint(400, 700),        
-#     "lr_scheduler_type": tune.choice(["polynomial", "cosine", "linear"]),
-#     "num_train_epochs": tune.choice([1]),          
-#     "per_device_train_batch_size": tune.choice([12]),  
-#     "seed": tune.randint(0, 100)                   
-# }
+
+ray_config = {
+    "num_train_epochs": tune.choice([3, 5]),
+
+    # Centered around 2.1e-4, allow slight exploration
+    "learning_rate": tune.uniform(1.5e-4, 3e-4),
+
+    # Try best known + one variant
+    "lr_scheduler_type": tune.choice(["cosine", "linear"]),
+
+    # Keep original, and optionally explore a step up
+    "per_device_train_batch_size": tune.choice([8, 12]),
+
+    # Centered around 117 warmup steps
+    "warmup_steps": tune.randint(80, 160),
+
+    # Slight neighborhood around 0.26
+    "weight_decay": tune.uniform(0.2, 0.3),
+
+    # Still randomly sampled for robustness
+    "seed": tune.randint(0, 100),
+}
 
 
 model = Classifier(
       classifier="cell",
       cell_state_dict={"state_key": "disease_group", "states": "all"},
-      max_ncells=None,                  
+      max_ncells=1000,
+      max_ncells_per_class=250,
       training_args=training_args.to_dict(),
       freeze_layers=4,                 
       num_crossval_splits=1,           # no cross-validation
       forward_batch_size=64,
-      nproc=12,
+      ray_config=ray_config,
+      nproc=30,
       model_version="V2")
 
 os.makedirs(prepared_data_folder, exist_ok=True)
@@ -78,7 +93,7 @@ metrics = model.validate(
         output_directory=results_folder,
         output_prefix="jdm_classifier_with_hyperopt",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=120
+        n_hyperopt_trials=100
     )    
 
 print("Classifier training complete!")
