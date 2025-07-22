@@ -12,60 +12,34 @@ model_path = os.path.abspath("../Geneformer/Geneformer-V2-104M")
 
 
 training_args = TrainingArguments(
-      num_train_epochs=3,              
-      learning_rate=5e-5,
+      num_train_epochs=1,              
+      learning_rate=0.0009666412211122036,
       per_device_train_batch_size=16,
-      lr_scheduler_type='polynomial',
-      warmup_steps=50,
-      weight_decay=0.01,
-      seed=73,
+      lr_scheduler_type='linear',
+      warmup_steps=700.2394955504099,
+      weight_decay=0.1312456571918533,
+      seed=38.5402348738166,
   )
 
 
 
 
-ray_config = {
-    "num_train_epochs": tune.choice([3, 5]),
-
-    # Centered around 2.1e-4, allow slight exploration
-    "learning_rate": tune.uniform(1.5e-4, 3e-4),
-
-    # Try best known + one variant
-    "lr_scheduler_type": tune.choice(["cosine", "linear"]),
-
-    # Keep original, and optionally explore a step up
-    "per_device_train_batch_size": tune.choice([8, 12]),
-
-    # Centered around 117 warmup steps
-    "warmup_steps": tune.randint(80, 160),
-
-    # Slight neighborhood around 0.26
-    "weight_decay": tune.uniform(0.2, 0.3),
-
-    # Still randomly sampled for robustness
-    "seed": tune.randint(0, 100),
-}
-
-
 model = Classifier(
       classifier="cell",
-      cell_state_dict={"state_key": "disease_group", "states": "all"},
-      max_ncells=1000,
-      max_ncells_per_class=250,
+      cell_state_dict={"state_key": "disease_group", "states": [1,3]},
       training_args=training_args.to_dict(),
       freeze_layers=4,                 
       num_crossval_splits=1,           # no cross-validation
       forward_batch_size=64,
-      ray_config=ray_config,
       nproc=30,
       model_version="V2")
 
 os.makedirs(prepared_data_folder, exist_ok=True)
 os.makedirs(results_folder, exist_ok=True)
 
-train_ids = [5, 9, 14, 17, 4, 10, 1, 12, 0, 15, 19, 16, 12, 14, 5, 9] # all cases ( 3 HCs, 6 TNJDM, 3 Active, 4 Inactive)
-eval_ids = [6, 7, 3, 11] # 1 case each
-test_ids = [2, 8, 13, 18] # 1 case each 
+train_ids = [14, 17, 4, 1, 12, 0, 15, 19, 16, 2, 8]
+eval_ids = [6, 3]
+test_ids = [13, 18]
 
 train_test_id_split_dict = {"attr_key": "donor_id",
                             "train": train_ids+eval_ids,

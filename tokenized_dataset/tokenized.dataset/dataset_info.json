@@ -10,19 +10,19 @@
       "_type": "Sequence"
     },
     "disease_group": {
-      "dtype": "int64",
+      "dtype": "string",
       "_type": "Value"
     },
     "sex": {
-      "dtype": "int64",
+      "dtype": "string",
       "_type": "Value"
     },
     "self_reported_ethnicity": {
-      "dtype": "int64",
+      "dtype": "string",
       "_type": "Value"
     },
     "donor_id": {
-      "dtype": "int64",
+      "dtype": "string",
       "_type": "Value"
     },
     "observation_joinid": {

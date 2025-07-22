@@ -5,13 +5,13 @@ from geneformer import Classifier
 input_data_folder = os.path.abspath("tokenized_dataset/tokenized.dataset")
 prepared_data_folder = os.path.abspath("CD4_finetune_prepared")
 results_folder = os.path.abspath("CD4_finetune_results")
-model_path = os.path.abspath("CD4_finetune_results/250629_geneformer_cellClassifier_jdm_classifier/ksplit1/checkpoint-497")
+model_path = os.path.abspath("CD4_finetune_results/250721_geneformer_cellClassifier_jdm_classifier_with_hyperopt/ksplit1/run-569bf50c/checkpoint-139")
 
 
 
 cc = Classifier(classifier="cell",
                 cell_state_dict = {"state_key": "disease_group", "states": "all"},
-                forward_batch_size=200,
+                forward_batch_size=64,
                 nproc=16)
 
 
