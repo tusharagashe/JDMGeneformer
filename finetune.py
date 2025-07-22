@@ -16,9 +16,9 @@ training_args = TrainingArguments(
       learning_rate=0.0009666412211122036,
       per_device_train_batch_size=16,
       lr_scheduler_type='linear',
-      warmup_steps=700.2394955504099,
+      warmup_steps=700,
       weight_decay=0.1312456571918533,
-      seed=38.5402348738166,
+      seed=38,
   )
 
 
@@ -26,7 +26,7 @@ training_args = TrainingArguments(
 
 model = Classifier(
       classifier="cell",
-      cell_state_dict={"state_key": "disease_group", "states": [1,3]},
+      cell_state_dict={"state_key": "disease_group", "states": ["HC","TNJDM"]},
       training_args=training_args.to_dict(),
       freeze_layers=4,                 
       num_crossval_splits=1,           # no cross-validation
@@ -37,9 +37,9 @@ model = Classifier(
 os.makedirs(prepared_data_folder, exist_ok=True)
 os.makedirs(results_folder, exist_ok=True)
 
-train_ids = [14, 17, 4, 1, 12, 0, 15, 19, 16, 2, 8]
-eval_ids = [6, 3]
-test_ids = [13, 18]
+train_ids = ['HC16', 'HC17', 'HC18', 'JDM2', 'JDM3', 'JDM4', 'JDM5', 'JDM7', 'JDM8', 'JDM9']
+eval_ids = ['HC19', 'JDM6']
+test_ids = ['HC20', 'JDM10']
 
 train_test_id_split_dict = {"attr_key": "donor_id",
                             "train": train_ids+eval_ids,
@@ -65,9 +65,9 @@ metrics = model.validate(
         prepared_input_data_file=f"{prepared_data_folder}/jdm_labeled_train.dataset",
         id_class_dict_file=f"{prepared_data_folder}/jdm_id_class_dict.pkl",
         output_directory=results_folder,
-        output_prefix="jdm_classifier_with_hyperopt",
+        output_prefix="jdm_classifier_with_no_hyperopt",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=100
+        n_hyperopt_trials=0
     )    
 
 print("Classifier training complete!")
