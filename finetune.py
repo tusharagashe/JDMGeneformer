@@ -37,8 +37,8 @@ model = Classifier(
 os.makedirs(prepared_data_folder, exist_ok=True)
 os.makedirs(results_folder, exist_ok=True)
 
-train_ids = ['HC16', 'HC17', 'HC18', 'JDM2', 'JDM3', 'JDM4', 'JDM5', 'JDM7', 'JDM8', 'JDM9']
-eval_ids = ['HC19', 'JDM6']
+train_ids = ['HC16', 'HC17', 'HC18', 'JDM2', 'JDM3', 'JDM5', 'JDM6', 'JDM8', 'JDM9']
+eval_ids = ['HC19', 'JDM4', 'JDM7']  
 test_ids = ['HC20', 'JDM10']
 
 train_test_id_split_dict = {"attr_key": "donor_id",
@@ -65,9 +65,9 @@ metrics = model.validate(
         prepared_input_data_file=f"{prepared_data_folder}/jdm_labeled_train.dataset",
         id_class_dict_file=f"{prepared_data_folder}/jdm_id_class_dict.pkl",
         output_directory=results_folder,
-        output_prefix="jdm_classifier_with_no_hyperopt",
+        output_prefix="jdm_classifier_with_hyperopt_after_split_update",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=0
+        n_hyperopt_trials=100
     )    
 
 print("Classifier training complete!")
