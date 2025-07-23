@@ -1,0 +1,9 @@
+{
+  "learning_rate": 3.5778705748713764e-05,
+  "lr_scheduler_type": "linear",
+  "num_train_epochs": 1,
+  "per_device_train_batch_size": 16,
+  "seed": 61.273792910703186,
+  "warmup_steps": 757.2370602509222,
+  "weight_decay": 0.2876246707851298
+}

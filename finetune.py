@@ -8,7 +8,7 @@ from ray import tune
 input_data_folder = os.path.abspath("tokenized_dataset/tokenized.dataset")
 prepared_data_folder = os.path.abspath("CD4_finetune_prepared")
 results_folder = os.path.abspath("CD4_finetune_results")
-model_path = os.path.abspath("../Geneformer/Geneformer-V2-104M")
+model_path = os.path.abspath("../../Geneformer/Geneformer-V2-104M")
 
 
 training_args = TrainingArguments(
@@ -19,6 +19,13 @@ training_args = TrainingArguments(
       warmup_steps=700,
       weight_decay=0.1312456571918533,
       seed=38,
+      report_to="wandb",
+      eval_strategy="epoch", 
+      logging_strategy="steps",
+      logging_steps=50,
+      save_strategy="epoch",
+      load_best_model_at_end=True,
+      metric_for_best_model="eval_macro_f1",  
   )
 
 
