@@ -4,3 +4,5 @@ CD4_finetune_results/250722_geneformer_cellClassifier_jdm_classifier_with_hypero
 CD4_finetune_results/250722_geneformer_cellClassifier_jdm_classifier_with_no_hyperopt/ksplit1/checkpoint-110/model.safetensors filter=lfs diff=lfs merge=lfs -text
 CD4_finetune_results/250722_geneformer_cellClassifier_jdm_classifier_with_no_hyperopt/ksplit1/checkpoint-110/optimizer.pt filter=lfs diff=lfs merge=lfs -text
 CD4_finetune_results/250722_geneformer_cellClassifier_jdm_classifier_with_no_hyperopt/ksplit1/model.safetensors filter=lfs diff=lfs merge=lfs -text
+saved_models/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+saved_models/**/*.pt filter=lfs diff=lfs merge=lfs -text
