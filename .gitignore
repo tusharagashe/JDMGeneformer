@@ -1,2 +1,4 @@
 CD4_finetune_results/**/model.safetensors
 CD4_finetune_results/**/optimizer.pt
+**/cache*
+pipeline/wandb/*

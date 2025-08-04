@@ -14,3 +14,4 @@ JDMGeneformer/savedmodels/250723_geneformer_cellClassifier_jdm_classifier_with_n
 JDMGeneformer/savedmodels/postdatasplitupdate70%/ksplit1/checkpoint-111/model.safetensors filter=lfs diff=lfs merge=lfs -text
 JDMGeneformersavedmodels/postdatasplitupdate70%/ksplit1/checkpoint-111/model.safetensors filter=lfs diff=lfs merge=lfs -text
 savedmodels/* filter=lfs diff=lfs merge=lfs -text
+tokenized_dataset/CD4All_JDM.dataset/data-00000-of-00001.arrow filter=lfs diff=lfs merge=lfs -text
