@@ -14,8 +14,8 @@ tk = TranscriptomeTokenizer(
 
 
 tk.tokenize_data(
-    "dataset",
-    "tokenized_dataset",
-    "tokenized",
+    "../dataset",
+    "../tokenized_dataset",
+    "CD4All_JDM",
     file_format = "h5ad"  
 )

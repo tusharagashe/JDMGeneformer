@@ -5,10 +5,10 @@ from geneformer import Classifier
 from ray import tune
 
 
-input_data_folder = os.path.abspath("tokenized_dataset/tokenized.dataset")
-prepared_data_folder = os.path.abspath("CD4_finetune_prepared")
-results_folder = os.path.abspath("CD4_finetune_results")
-model_path = os.path.abspath("../../Geneformer/Geneformer-V2-104M")
+input_data_folder = os.path.abspath("../tokenized_dataset/CD4All_JDM.dataset")
+prepared_data_folder = os.path.abspath("../CD4_finetune_prepared")
+results_folder = os.path.abspath("../CD4_finetune_results")
+model_path = os.path.abspath("../Geneformer/Geneformer-V2-104M")
 
 
 training_args = TrainingArguments(
@@ -44,9 +44,9 @@ model = Classifier(
 os.makedirs(prepared_data_folder, exist_ok=True)
 os.makedirs(results_folder, exist_ok=True)
 
-train_ids = ['HC16', 'HC17', 'HC18', 'JDM2', 'JDM3', 'JDM5', 'JDM6', 'JDM8', 'JDM9']
-eval_ids = ['HC19', 'JDM4', 'JDM7']  
-test_ids = ['HC20', 'JDM10']
+train_ids = ['HC16', 'HC17', 'HC18', 'JDM2', 'JDM3', 'JDM4', 'JDM5', 'JDM6', 'JDM7']
+eval_ids  = ['HC19', 'JDM8']
+test_ids  = ['HC20', 'JDM9', 'JDM10']
 
 train_test_id_split_dict = {"attr_key": "donor_id",
                             "train": train_ids+eval_ids,
@@ -56,7 +56,7 @@ train_test_id_split_dict = {"attr_key": "donor_id",
 model.prepare_data(
       input_data_file=input_data_folder,
       output_directory=prepared_data_folder,
-      output_prefix="jdm",
+      output_prefix="CD4ALL",
       split_id_dict=train_test_id_split_dict
 )
 
@@ -69,12 +69,12 @@ print("Begin classifier training")
 
 metrics = model.validate(
         model_directory=model_path,
-        prepared_input_data_file=f"{prepared_data_folder}/jdm_labeled_train.dataset",
-        id_class_dict_file=f"{prepared_data_folder}/jdm_id_class_dict.pkl",
+        prepared_input_data_file=f"{prepared_data_folder}/CD4ALL_labeled_train.dataset",
+        id_class_dict_file=f"{prepared_data_folder}/CD4ALL_id_class_dict.pkl",
         output_directory=results_folder,
-        output_prefix="jdm_classifier_with_hyperopt_after_split_update",
+        output_prefix="jdm_classifier_CD4ALL",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=100
+        n_hyperopt_trials=0
     )    
 
 print("Classifier training complete!")
