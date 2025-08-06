@@ -1,2 +1,0 @@
-eval_loss,eval_accuracy,eval_macro_f1,eval_runtime,eval_samples_per_second,eval_steps_per_second,epoch,objective,timestamp,checkpoint_dir_name,should_checkpoint,done,training_iteration,trial_id,date,time_this_iter_s,time_total_s,pid,hostname,node_ip,time_since_restore,iterations_since_restore
-0.6446164846420288,0.6270270270270271,0.6084142284514493,35.1747,31.557,3.952,1.0,1.2354412554784764,1753251897,checkpoint_000000,True,False,1,b79ae800,2025-07-23_06-24-57,244.18445825576782,244.18445825576782,302828,80-225-210-59,10.19.101.220,244.18445825576782,1
