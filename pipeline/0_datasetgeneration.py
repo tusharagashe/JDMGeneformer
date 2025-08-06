@@ -7,27 +7,12 @@ import os
 import path
 
 def get_and_save_data(dataset_id: str, cell_types: List[str], output_location: str, cell_type_column: str = "cell_type"):
-    """
-    Downloads a full dataset from the CELLxGENE Census, filters it for
-    specific cell types, and saves the filtered data to a new h5ad file.
-    The original downloaded file is deleted after successful processing.
-
-    Args:
-        dataset_id: The UUID of the dataset to query.
-        cell_types: A list of cell type names to filter for.
-        output_location: The full path to save the final filtered h5ad file.
-        cell_type_column: The name of the column containing cell type information in adata.obs.
-                          Defaults to 'cell_type'.
-    """
-    # Create the output directory if it doesn't exist
     output_directory = os.path.dirname(output_location)
     if output_directory:
         os.makedirs(output_directory, exist_ok=True)
     
-    # Define a temporary path for the full downloaded file
     temp_input_path = os.path.join(output_directory, "temp_dataset")
     
-    # --- Step 1: Download the full h5ad file from the Census ---
     if not os.path.exists(temp_input_path):
         print(f"Downloading full dataset for ID: {dataset_id}...")
         try:
@@ -43,22 +28,18 @@ def get_and_save_data(dataset_id: str, cell_types: List[str], output_location: s
     else:
         print("Full dataset already exists. Skipping download.")
 
-    # --- Step 2: Load and filter the local file with Scanpy ---
     print("Loading local h5ad file and filtering with Scanpy...")
     try:
         adata = sc.read_h5ad(temp_input_path)
         print(f"Loaded AnnData with {adata.n_obs} cells and {adata.n_vars} genes.")
         
-        # Filter the AnnData object to keep only the desired cell types
-        # This will use the cell_type_column parameter
+        
         filtered_adata = adata[adata.obs[cell_type_column].isin(cell_types)].copy()
         print(f"Filtered data to {filtered_adata.n_obs} cells.")
 
-        # --- Step 3: Save the filtered data ---
         filtered_adata.write(output_location)
         print(f"Filtered data saved to {output_location}")
 
-        # --- Step 4: Delete the original downloaded file ---
         os.remove(temp_input_path)
         print(f"Successfully deleted original downloaded file: {temp_input_path}")
 
