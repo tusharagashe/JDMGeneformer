@@ -9,3 +9,5 @@ JDMGeneformer/savedmodels/postdatasplitupdate70%/ksplit1/checkpoint-111/model.sa
 JDMGeneformersavedmodels/postdatasplitupdate70%/ksplit1/checkpoint-111/model.safetensors filter=lfs diff=lfs merge=lfs -text
 savedmodels/* filter=lfs diff=lfs merge=lfs -text
 tokenized_dataset/CD4All_JDM.dataset/data-00000-of-00001.arrow filter=lfs diff=lfs merge=lfs -text
+savedmodels/trial_1da7fc18/250820_geneformer_cellClassifier_ray_trial_1da7fc18/ksplit1/checkpoint-125/model.safetensors filter=lfs diff=lfs merge=lfs -text
+savedmodels/trial_1da7fc18/250820_geneformer_cellClassifier_ray_trial_1da7fc18/ksplit1/checkpoint-125/optimizer.pt filter=lfs diff=lfs merge=lfs -text
