@@ -1,0 +1,2 @@
+macro_f1,acc,roc_auc,timestamp,checkpoint_dir_name,done,training_iteration,trial_id,date,time_this_iter_s,time_total_s,pid,hostname,node_ip,time_since_restore,iterations_since_restore
+0.6574319840743198,0.8207156308851224,0.765165994832433,1755666148,,False,1,94e7a584,2025-08-20_05-02-28,764.7712507247925,764.7712507247925,364709,jdm2-vm,10.140.0.2,764.7712507247925,1

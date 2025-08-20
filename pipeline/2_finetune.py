@@ -25,6 +25,7 @@ training_args = TrainingArguments(
       logging_steps=50,
       save_strategy="epoch",
       load_best_model_at_end=True,
+      output_dir=results_folder,
       metric_for_best_model="eval_macro_f1",  
   )
 
@@ -38,7 +39,7 @@ model = Classifier(
       freeze_layers=4,                 
       num_crossval_splits=1,           # no cross-validation
       forward_batch_size=64,
-      nproc=30,
+      nproc=8,
       model_version="V2")
 
 os.makedirs(prepared_data_folder, exist_ok=True)
@@ -74,7 +75,7 @@ metrics = model.validate(
         output_directory=results_folder,
         output_prefix="jdm_classifier_CD4ALL",
         split_id_dict=train_valid_id_split_dict,
-        n_hyperopt_trials=0
+        n_hyperopt_trials=1
     )    
 
 print("Classifier training complete!")

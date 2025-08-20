@@ -1,0 +1,8 @@
+{
+  "batch_size": 8,
+  "gradient_accumulation_steps": 8,
+  "learning_rate": 4.2256990385451875e-05,
+  "seed": 352,
+  "warmup_steps": 419,
+  "weight_decay": 0.0003650437139156384
+}

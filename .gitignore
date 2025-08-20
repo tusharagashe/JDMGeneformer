@@ -3,3 +3,8 @@ CD4_finetune_results/**/optimizer.pt
 **/cache*
 pipeline/wandb/*
 CD4_finetune_prepared/*
+CD4_finetune_results_ray_run/**/model.safetensors
+CD4_finetune_results_ray_run/**/optimizer.pt
+CD4_finetune_results_aug19_50trials/**/model.safetensors
+CD4_finetune_results_aug19_50trials/**/optimizer.pt
+Geneformer/*

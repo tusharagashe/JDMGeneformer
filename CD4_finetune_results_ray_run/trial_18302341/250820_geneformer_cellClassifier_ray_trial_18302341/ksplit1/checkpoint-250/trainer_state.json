@@ -1,0 +1,51 @@
+{
+  "best_global_step": 250,
+  "best_metric": 0.6864775790889558,
+  "best_model_checkpoint": "/home/tusharagashe/JDMGeneformer/CD4_finetune_results_ray_run/trial_18302341/250820_geneformer_cellClassifier_ray_trial_18302341/ksplit1/checkpoint-250",
+  "epoch": 1.0,
+  "eval_steps": 500,
+  "global_step": 250,
+  "is_hyper_param_search": false,
+  "is_local_process_zero": true,
+  "is_world_process_zero": true,
+  "log_history": [
+    {
+      "epoch": 0.79839518555667,
+      "grad_norm": 2.629434108734131,
+      "learning_rate": 1.9968697127254106e-05,
+      "loss": 0.5125,
+      "step": 199
+    },
+    {
+      "epoch": 1.0,
+      "eval_accuracy": 0.8090395480225989,
+      "eval_loss": 0.4572715759277344,
+      "eval_macro_f1": 0.6864775790889558,
+      "eval_runtime": 30.7234,
+      "eval_samples_per_second": 86.416,
+      "eval_steps_per_second": 10.806,
+      "step": 250
+    }
+  ],
+  "logging_steps": 199,
+  "max_steps": 250,
+  "num_input_tokens_seen": 0,
+  "num_train_epochs": 1,
+  "save_steps": 500,
+  "stateful_callbacks": {
+    "TrainerControl": {
+      "args": {
+        "should_epoch_stop": false,
+        "should_evaluate": false,
+        "should_log": false,
+        "should_save": true,
+        "should_training_stop": true
+      },
+      "attributes": {}
+    }
+  },
+  "total_flos": 1.442492794347408e+16,
+  "train_batch_size": 8,
+  "trial_name": null,
+  "trial_params": null
+}
