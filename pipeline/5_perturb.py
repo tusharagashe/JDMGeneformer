@@ -46,19 +46,60 @@ def main():
     print(f"Original dataset size: {len(dataset)}")
     print(f"Sample input_ids type: {type(dataset[0]['input_ids'])}")
     
-    # Fix input_ids format if needed
+    # Fix input_ids format if needed - more robust approach
     def fix_input_ids_format(example):
         # Convert Column/tensor to list for perturbation compatibility
-        if hasattr(example["input_ids"], 'to_list'):
-            example["input_ids"] = example["input_ids"].to_list()
-        elif hasattr(example["input_ids"], 'tolist'):
-            example["input_ids"] = example["input_ids"].tolist()
-        elif not isinstance(example["input_ids"], list):
-            example["input_ids"] = list(example["input_ids"])
+        # Handle different possible formats from datasets library
+        input_ids = example["input_ids"]
+        
+        # If it's already a list, ensure it's a proper Python list
+        if isinstance(input_ids, list):
+            example["input_ids"] = list(input_ids)  # Ensure it's a mutable Python list
+        # Handle Column objects from datasets >= 4.0.0
+        elif hasattr(input_ids, 'to_list'):
+            example["input_ids"] = input_ids.to_list()
+        elif hasattr(input_ids, 'tolist'):
+            example["input_ids"] = input_ids.tolist()
+        # Handle numpy arrays or other array-like objects
+        elif hasattr(input_ids, '__iter__'):
+            example["input_ids"] = list(input_ids)
+        else:
+            # Fallback - convert to list
+            example["input_ids"] = [input_ids] if not hasattr(input_ids, '__len__') else list(input_ids)
+        
+        # Also ensure other fields are in proper format
+        for key in example.keys():
+            if key != "input_ids" and hasattr(example[key], 'to_list'):
+                example[key] = example[key].to_list() if hasattr(example[key], 'to_list') else example[key]
+            elif key != "input_ids" and hasattr(example[key], 'tolist'):
+                example[key] = example[key].tolist() if hasattr(example[key], 'tolist') else example[key]
+        
         return example
     
     # This is critical for preventing the TypeError in child processes
     dataset = dataset.map(fix_input_ids_format, num_proc=N_PROCESSES)
+    
+    # Additional step: Convert dataset to a format that avoids Column objects entirely
+    # Force conversion to basic Python types by converting to dict and back
+    print("Converting dataset to avoid Column object issues...")
+    try:
+        # Convert entire dataset to dict format and back to ensure proper data types
+        dataset_dict = {}
+        for key in dataset.column_names:
+            dataset_dict[key] = dataset[key]
+            # Ensure all values are proper Python types
+            if hasattr(dataset_dict[key], 'to_list'):
+                dataset_dict[key] = dataset_dict[key].to_list()
+            elif hasattr(dataset_dict[key], 'tolist'):
+                dataset_dict[key] = dataset_dict[key].tolist()
+        
+        # Recreate dataset from the cleaned dict
+        from datasets import Dataset
+        dataset = Dataset.from_dict(dataset_dict)
+        print("Dataset format conversion completed!")
+    except Exception as e:
+        print(f"Warning: Could not convert dataset format completely: {e}")
+        print("Proceeding with original fix...")
     
     # Save fixed dataset temporarily
     fixed_dataset_path = INPUT_DATA_PATH.replace(".dataset", "_perturbation_ready.dataset")
