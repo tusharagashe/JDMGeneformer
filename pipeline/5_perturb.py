@@ -11,6 +11,34 @@ import os
 from datasets import load_from_disk
 from multiprocessing import freeze_support # Import freeze_support
 
+# CRITICAL FIX: Monkey patch to fix missing datasets>=4.0.0 compatibility in Geneformer
+def patch_geneformer_column_fix():
+    """
+    Patches the make_perturbation_batch_special function to handle Column objects
+    from datasets library version 4.0.0+, matching the fix in make_perturbation_batch
+    """
+    import datasets
+    from geneformer import perturber_utils
+    from datasets import Dataset
+    
+    # Store the original function
+    original_make_perturbation_batch_special = perturber_utils.make_perturbation_batch_special
+    
+    def patched_make_perturbation_batch_special(example_cell, perturb_type, tokens_to_perturb, anchor_token, combo_lvl, num_proc):
+        # Apply the same fix that exists in make_perturbation_batch
+        if int(datasets.__version__.split(".")[0]) >= 4:
+            example_cell = example_cell[:]
+        
+        # Call the original function with the fixed example_cell
+        return original_make_perturbation_batch_special(example_cell, perturb_type, tokens_to_perturb, anchor_token, combo_lvl, num_proc)
+    
+    # Replace the function with our patched version
+    perturber_utils.make_perturbation_batch_special = patched_make_perturbation_batch_special
+    print("Applied Geneformer Column object compatibility patch!")
+
+# Apply the patch immediately
+patch_geneformer_column_fix()
+
 def main():
     # =============================================================================
     # CONFIGURATION - UPDATE THESE PATHS FOR YOUR PROJECT
@@ -36,78 +64,16 @@ def main():
     MAX_NCELLS = 1000     # Maximum number of cells to analyze per state
     
     # =============================================================================
-    # FIX DATASET FORMAT (for perturbation compatibility)
+    # LOAD DATASET (Monkey patch handles Column object compatibility)
     # =============================================================================
     
-    print("Checking and fixing dataset format...")
+    print("Loading dataset...")
     
-    # Load dataset and check format
+    # Load dataset - the monkey patch handles Column object issues
     dataset = load_from_disk(INPUT_DATA_PATH)
-    print(f"Original dataset size: {len(dataset)}")
+    print(f"Dataset size: {len(dataset)}")
     print(f"Sample input_ids type: {type(dataset[0]['input_ids'])}")
-    
-    # Fix input_ids format if needed - more robust approach
-    def fix_input_ids_format(example):
-        # Convert Column/tensor to list for perturbation compatibility
-        # Handle different possible formats from datasets library
-        input_ids = example["input_ids"]
-        
-        # If it's already a list, ensure it's a proper Python list
-        if isinstance(input_ids, list):
-            example["input_ids"] = list(input_ids)  # Ensure it's a mutable Python list
-        # Handle Column objects from datasets >= 4.0.0
-        elif hasattr(input_ids, 'to_list'):
-            example["input_ids"] = input_ids.to_list()
-        elif hasattr(input_ids, 'tolist'):
-            example["input_ids"] = input_ids.tolist()
-        # Handle numpy arrays or other array-like objects
-        elif hasattr(input_ids, '__iter__'):
-            example["input_ids"] = list(input_ids)
-        else:
-            # Fallback - convert to list
-            example["input_ids"] = [input_ids] if not hasattr(input_ids, '__len__') else list(input_ids)
-        
-        # Also ensure other fields are in proper format
-        for key in example.keys():
-            if key != "input_ids" and hasattr(example[key], 'to_list'):
-                example[key] = example[key].to_list() if hasattr(example[key], 'to_list') else example[key]
-            elif key != "input_ids" and hasattr(example[key], 'tolist'):
-                example[key] = example[key].tolist() if hasattr(example[key], 'tolist') else example[key]
-        
-        return example
-    
-    # This is critical for preventing the TypeError in child processes
-    dataset = dataset.map(fix_input_ids_format, num_proc=N_PROCESSES)
-    
-    # Additional step: Convert dataset to a format that avoids Column objects entirely
-    # Force conversion to basic Python types by converting to dict and back
-    print("Converting dataset to avoid Column object issues...")
-    try:
-        # Convert entire dataset to dict format and back to ensure proper data types
-        dataset_dict = {}
-        for key in dataset.column_names:
-            dataset_dict[key] = dataset[key]
-            # Ensure all values are proper Python types
-            if hasattr(dataset_dict[key], 'to_list'):
-                dataset_dict[key] = dataset_dict[key].to_list()
-            elif hasattr(dataset_dict[key], 'tolist'):
-                dataset_dict[key] = dataset_dict[key].tolist()
-        
-        # Recreate dataset from the cleaned dict
-        from datasets import Dataset
-        dataset = Dataset.from_dict(dataset_dict)
-        print("Dataset format conversion completed!")
-    except Exception as e:
-        print(f"Warning: Could not convert dataset format completely: {e}")
-        print("Proceeding with original fix...")
-    
-    # Save fixed dataset temporarily
-    fixed_dataset_path = INPUT_DATA_PATH.replace(".dataset", "_perturbation_ready.dataset")
-    dataset.save_to_disk(fixed_dataset_path)
-    INPUT_DATA_PATH = fixed_dataset_path
-    
-    print(f"Fixed dataset saved to: {fixed_dataset_path}")
-    print(f"Fixed input_ids type: {type(dataset[0]['input_ids'])}")
+    print("Column object compatibility handled by monkey patch!")
     
     # =============================================================================
     # STEP 1: DEFINE CELL STATES FOR JDM ANALYSIS
